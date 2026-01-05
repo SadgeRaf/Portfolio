@@ -8,6 +8,7 @@ import Education from './components/Education';
 import Projects from './components/Projects';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import ThreeScene from './components/ThreeScene';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -67,7 +68,10 @@ function App() {
 
   return (
     <div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen font-body transition-colors duration-300 relative">
-      {/* Main Content - NO 3D MODELS */}
+      {/* Simple 3D Scene */}
+      <ThreeScene />
+      
+      {/* Main Content */}
       <div className="relative z-10">
         <Navigation darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <Hero />
