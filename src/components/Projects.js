@@ -76,7 +76,7 @@ const Projects = () => {
     {
       id: 1,
       name: 'Freelance Marketplace',
-      image: '/freelance-marketplace.jpg',
+      image: '/freelancer.png',
       shortDescription: 'A comprehensive freelance marketplace connecting clients with skilled freelancers',
       technologies: ['React', 'Node.js', 'MongoDB', 'Express.js', 'JWT', 'Tailwind CSS'],
       fullDescription: 'A full-stack freelance marketplace platform that enables clients to post projects and freelancers to bid on them. Features include user authentication, project management, real-time messaging, payment integration, and rating systems for both clients and freelancers.',
@@ -98,7 +98,7 @@ const Projects = () => {
     {
       id: 2,
       name: 'ContestHUB',
-      image: '/contesthub.jpg',
+      image: '/contestHUB.png',
       shortDescription: 'Contest management platform for organizing and participating in various competitions',
       technologies: ['React', 'Firebase', 'Node.js', 'Express.js', 'MongoDB', 'Tailwind CSS'],
       fullDescription: 'A comprehensive contest management system that allows organizers to create contests and participants to join them. Features include contest creation, participant registration, submission handling, judging system, and winner announcements with automated notifications.',
@@ -120,7 +120,7 @@ const Projects = () => {
     {
       id: 3,
       name: 'WarmPAWS',
-      image: '/warmpaws.jpg',
+      image: '/warmPAWS.png',
       shortDescription: 'Pet adoption platform connecting loving families with pets in need',
       technologies: ['React', 'Firebase', 'Tailwind CSS', 'JavaScript'],
       fullDescription: 'A heartwarming pet adoption platform that helps connect pets in shelters with loving families. Features include pet profiles with detailed information, adoption application system, shelter management tools, and follow-up tracking for successful adoptions.',
@@ -142,7 +142,7 @@ const Projects = () => {
     {
       id: 4,
       name: 'Three.js Interactive Experience',
-      image: '/threejs-project.jpg',
+      image: '/THREEJS.png',
       shortDescription: '3D interactive web experience built with Three.js and modern web technologies',
       technologies: ['Three.js', 'JavaScript', 'WebGL', 'GSAP', 'HTML5', 'CSS3'],
       fullDescription: 'An immersive 3D web experience showcasing interactive 3D graphics, animations, and user interactions. This project demonstrates advanced Three.js concepts including 3D modeling, lighting, textures, and smooth animations using GSAP.',

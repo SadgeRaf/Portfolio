@@ -35,7 +35,7 @@ const Education = () => {
     },
     {
       name: 'IELTS Academic - Band 8.0',
-      issuer: 'British Council',
+      issuer: 'IDP',
       description: 'International English Language Testing System with overall band score of 8.0'
     }
   ];

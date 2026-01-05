@@ -66,15 +66,18 @@ function App() {
   };
 
   return (
-    <div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen font-body transition-colors duration-300">
-      <Navigation darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-      <Hero />
-      <About />
-      <Skills />
-      <Education />
-      <Projects />
-      <Contact />
-      <Footer />
+    <div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen font-body transition-colors duration-300 relative">
+      {/* Main Content - NO 3D MODELS */}
+      <div className="relative z-10">
+        <Navigation darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+        <Hero />
+        <About />
+        <Skills />
+        <Education />
+        <Projects />
+        <Contact />
+        <Footer />
+      </div>
     </div>
   );
 }
