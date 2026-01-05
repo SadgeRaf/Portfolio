@@ -14,6 +14,9 @@ const Contact = () => {
   const formFieldsRef = useRef([]);
   const buttonRef = useRef(null);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -213,25 +216,69 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus(null);
     
     try {
-      // Create mailto link with form data
-      const subject = encodeURIComponent(formData.subject);
-      const body = encodeURIComponent(
-        `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
-      );
-      const mailtoLink = `mailto:khalilurrafsun@gmail.com?subject=${subject}&body=${body}`;
-      
-      // Open default email client
-      window.location.href = mailtoLink;
-      
-      // Show success message
-      alert('Opening your email client... Thank you for reaching out!');
-      
-      // Reset form
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      // Web3Forms API endpoint
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: 'fc206e51-c89c-49d0-ab68-3a2a1590e630', // Replace with your actual access key from https://web3forms.com
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          from_name: formData.name,
+          to_email: 'khalilurrafsun@gmail.com'
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+        
+        // Show success animation
+        gsap.to(buttonRef.current, {
+          scale: 1.1,
+          duration: 0.2,
+          yoyo: true,
+          repeat: 1,
+          ease: "power2.inOut"
+        });
+      } else {
+        setSubmitStatus('error');
+        console.error('Form submission error:', result);
+      }
     } catch (error) {
-      alert('Something went wrong. Please try sending an email directly to khalilurrafsun@gmail.com');
+      console.error('Network error:', error);
+      
+      // Fallback to mailto if Web3Forms fails
+      try {
+        const subject = encodeURIComponent(formData.subject);
+        const body = encodeURIComponent(
+          `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
+        );
+        const mailtoLink = `mailto:khalilurrafsun@gmail.com?subject=${subject}&body=${body}`;
+        window.location.href = mailtoLink;
+        
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } catch (mailtoError) {
+        setSubmitStatus('error');
+      }
+    } finally {
+      setIsSubmitting(false);
+      
+      // Clear status after 5 seconds
+      setTimeout(() => {
+        setSubmitStatus(null);
+      }, 5000);
     }
   };
 
@@ -479,13 +526,60 @@ const Contact = () => {
                 <button
                   ref={buttonRef}
                   type="submit"
-                  className="w-full bg-gradient-to-r from-primary via-secondary to-accent hover:from-primary/90 hover:to-accent/90 text-white py-4 px-8 rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 hover:shadow-lg hover:scale-[1.02] transform shadow-lg"
+                  disabled={isSubmitting}
+                  className={`w-full py-4 px-8 rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg transform ${
+                    isSubmitting 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : submitStatus === 'success'
+                      ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                      : submitStatus === 'error'
+                      ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700'
+                      : 'bg-gradient-to-r from-primary via-secondary to-accent hover:from-primary/90 hover:to-accent/90 hover:shadow-lg hover:scale-[1.02]'
+                  } text-white`}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
-                  Send Message
+                  {isSubmitting ? (
+                    <>
+                      <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Sending...
+                    </>
+                  ) : submitStatus === 'success' ? (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Message Sent!
+                    </>
+                  ) : submitStatus === 'error' ? (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                      Try Again
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      </svg>
+                      Send Message
+                    </>
+                  )}
                 </button>
+                
+                {/* Status Messages */}
+                {submitStatus && (
+                  <div className={`text-center text-sm font-medium ${
+                    submitStatus === 'success' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                  }`}>
+                    {submitStatus === 'success' 
+                      ? 'Thank you! Your message has been sent successfully. I\'ll get back to you soon!' 
+                      : 'Sorry, there was an error sending your message. Please try again or contact me directly.'
+                    }
+                  </div>
+                )}
               </form>
             </div>
           </div>

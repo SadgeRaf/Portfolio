@@ -13,62 +13,55 @@ const Hero = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Create timeline for entrance animations
-      const tl = gsap.timeline();
+      // Ensure all elements are visible initially as fallback
+      gsap.set([titleRef.current, subtitleRef.current, descriptionRef.current], { opacity: 1 });
+      gsap.set(buttonsRef.current, { opacity: 1 });
+      gsap.set(socialRef.current, { opacity: 1 });
+      gsap.set(imageRef.current, { opacity: 1 });
 
-      // Animate title with split text effect
-      tl.from(titleRef.current, {
-        y: 100,
-        opacity: 0,
-        duration: 1.2,
-        ease: "power3.out"
-      })
-      .from(subtitleRef.current, {
-        y: 50,
-        opacity: 0,
-        duration: 1,
-        ease: "power2.out"
-      }, "-=0.8")
-      .from(descriptionRef.current, {
-        y: 30,
-        opacity: 0,
-        duration: 0.8,
-        ease: "power2.out"
-      }, "-=0.6")
-      .from(buttonsRef.current.children, {
-        y: 30,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.2,
-        ease: "back.out(1.7)"
-      }, "-=0.4")
-      .from(socialRef.current.children, {
-        scale: 0,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: "back.out(1.7)"
-      }, "-=0.3")
-      .from(imageRef.current, {
-        scale: 0.8,
-        opacity: 0,
-        duration: 1,
-        ease: "power2.out"
-      }, "-=1");
+      // Create timeline for entrance animations with delay to ensure DOM is ready
+      gsap.delayedCall(0.1, () => {
+        const tl = gsap.timeline();
 
-      // Floating animation for image
-      gsap.to(imageRef.current, {
-        y: -20,
-        duration: 3,
-        ease: "power1.inOut",
-        yoyo: true,
-        repeat: -1
+        // Animate title with split text effect
+        tl.fromTo(titleRef.current, 
+          { y: 100, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.2, ease: "power3.out" }
+        )
+        .fromTo(subtitleRef.current,
+          { y: 50, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1, ease: "power2.out" }, "-=0.8"
+        )
+        .fromTo(descriptionRef.current,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" }, "-=0.6"
+        )
+        .fromTo(buttonsRef.current.children,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, stagger: 0.2, ease: "back.out(1.7)" }, "-=0.4"
+        )
+        .fromTo(socialRef.current.children,
+          { scale: 0, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.5, stagger: 0.1, ease: "back.out(1.7)" }, "-=0.3"
+        )
+        .fromTo(imageRef.current,
+          { scale: 0.8, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 1, ease: "power2.out" }, "-=1");
+
+        // Floating animation for image
+        gsap.to(imageRef.current, {
+          y: -20,
+          duration: 3,
+          ease: "power1.inOut",
+          yoyo: true,
+          repeat: -1
+        });
       });
 
       // Create floating particles
       for (let i = 0; i < 6; i++) {
         const particle = document.createElement('div');
-        particle.className = 'particle';
+        particle.className = 'particle absolute rounded-full pointer-events-none';
         particle.style.width = Math.random() * 10 + 5 + 'px';
         particle.style.height = particle.style.width;
         particle.style.left = Math.random() * 100 + '%';
@@ -94,8 +87,8 @@ const Hero = () => {
   const handleResumeDownload = () => {
     // Create a link element and trigger download
     const link = document.createElement('a');
-    link.href = '/Resume - Copy.pdf';
-    link.download = 'MD_Khalilur_Rahman_Resume.pdf';
+    link.href = '/MD_Khalilur_Rahman_Internship_Resume.pdf';
+    link.download = 'MD_Khalilur_Rahman_Internship_Resume.pdf';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -150,12 +143,13 @@ const Hero = () => {
             </p>
             <h1 
               ref={titleRef}
-              className="font-grotesk font-bold text-5xl sm:text-6xl lg:text-7xl leading-tight mb-4 text-white glow-text"
+              className="font-grotesk font-bold text-5xl sm:text-6xl lg:text-7xl leading-tight mb-4 text-white drop-shadow-lg"
+              style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}
             >
               MD Khalilur Rahman
             </h1>
-            <h2 className="font-grotesk font-medium text-2xl sm:text-3xl lg:text-4xl text-white/80 mb-6">
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <h2 className="font-grotesk font-medium text-2xl sm:text-3xl lg:text-4xl mb-6">
+              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent font-bold drop-shadow-lg">
                 Full Stack Developer
               </span>
             </h2>
