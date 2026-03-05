@@ -6,34 +6,56 @@ const ThreeScene = () => {
   const mountRef = useRef(null);
   const sceneRef = useRef(null);
   const modelsRef = useRef({});
-  const currentModelsRef = useRef([]); // Array to hold multiple models
+  const floatingModelsRef = useRef([]);
 
   useEffect(() => {
-    console.log('🚀 NEW FRESH ThreeScene - Starting clean');
-    console.log('🚫 TREE IS ABSOLUTELY BANNED - NOT IN CODE ANYWHERE');
-    console.log('📋 ONLY LOADING: react, computer, character');
+    console.log('🚀 Enhanced ThreeScene with better lighting and floating elements');
     
     if (!mountRef.current) return;
+    
+    const mount = mountRef.current; // Store ref value for cleanup
 
-    // Basic scene setup
+    // Enhanced scene setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x000000, 0);
-    mountRef.current.appendChild(renderer.domElement);
     
+    // Enhanced rendering with tone mapping
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    
+    mount.appendChild(renderer.domElement);
     camera.position.z = 10;
     sceneRef.current = scene;
 
-    // Simple lighting
-    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    // Enhanced lighting setup
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.4); // Softer ambient
+    scene.add(ambientLight);
+    
+    // Main directional light (sun-like)
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
     directionalLight.position.set(10, 10, 5);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
     scene.add(directionalLight);
+    
+    // Rim light for better model definition
+    const rimLight = new THREE.DirectionalLight(0x4ECDC4, 0.5);
+    rimLight.position.set(-10, 5, -5);
+    scene.add(rimLight);
+    
+    // Warm fill light
+    const fillLight = new THREE.PointLight(0xFF6B6B, 0.3, 50);
+    fillLight.position.set(0, -5, 5);
+    scene.add(fillLight);
 
-    // Load all models including Tree for contact section
+    // Load 3D models
     const loader = new GLTFLoader();
     const modelsToLoad = [
       { name: 'react', path: '/React.glb' },
@@ -42,14 +64,9 @@ const ThreeScene = () => {
       { name: 'tree', path: '/Tree.glb' }
     ];
 
-    console.log('📦 Loading all models:', modelsToLoad.map(m => m.name));
-    console.log('🌳 Tree added back for contact section!');
+    console.log('📦 Loading models with enhanced lighting:', modelsToLoad.map(m => m.name));
 
-    // Verify no unwanted models
-    const hasTree = modelsToLoad.some(m => m.name.toLowerCase().includes('tree'));
-    console.log('🔍 Does model list contain tree?', hasTree ? 'YES - ERROR!' : 'NO - CORRECT');
-
-    // Load all models
+    // Load 3D models
     Promise.all(
       modelsToLoad.map(({ name, path }) => 
         new Promise(resolve => {
@@ -57,16 +74,16 @@ const ThreeScene = () => {
             path,
             (gltf) => {
               modelsRef.current[name] = gltf.scene;
-              console.log(`✅ Loaded: ${name}`);
               
-              // Debug: Check what's inside each model
-              console.log(`🔍 ${name} model contents:`);
+              // Enable shadows for models
               gltf.scene.traverse((child) => {
                 if (child.isMesh) {
-                  console.log(`  - Mesh: ${child.name || 'unnamed'} (${child.geometry.type})`);
+                  child.castShadow = true;
+                  child.receiveShadow = true;
                 }
               });
               
+              console.log(`✅ Loaded: ${name} with shadows`);
               resolve();
             },
             undefined,
@@ -78,169 +95,82 @@ const ThreeScene = () => {
         })
       )
     ).then(() => {
-      console.log('🎉 All models loaded successfully');
+      console.log('🎉 All models loaded with enhanced lighting');
+      createFloatingModels();
       startAnimation();
     });
 
-    // Show models for section - DUAL SIDE SETUP
-    const showModel = (section) => {
-      // AGGRESSIVE MODEL CLEARING - Remove ALL models
-      const objectsToRemove = [];
-      scene.traverse((child) => {
-        if (child.userData.modelType || child.parent === scene && child.type === 'Group') {
-          objectsToRemove.push(child);
+    // Create floating models throughout the page
+    const createFloatingModels = () => {
+      const modelTypes = ['react', 'computer', 'character'];
+      
+      // Create multiple floating instances
+      for (let i = 0; i < 6; i++) {
+        const modelType = modelTypes[i % modelTypes.length];
+        if (modelsRef.current[modelType]) {
+          const model = modelsRef.current[modelType].clone();
+          
+          // Random positions around the viewport
+          model.position.set(
+            (Math.random() - 0.5) * 40,
+            (Math.random() - 0.5) * 30,
+            -15 - Math.random() * 10
+          );
+          
+          model.scale.setScalar(0.8 + Math.random() * 0.4);
+          
+          model.userData = {
+            modelType: modelType,
+            basePosition: model.position.clone(),
+            floatSpeed: 0.3 + Math.random() * 0.4,
+            rotationSpeed: 0.002 + Math.random() * 0.003,
+            floatOffset: Math.random() * Math.PI * 2,
+            isFloating: true
+          };
+          
+          scene.add(model);
+          floatingModelsRef.current.push(model);
+          console.log(`🎈 Added floating ${modelType} model`);
         }
-      });
-      
-      objectsToRemove.forEach(obj => {
-        scene.remove(obj);
-        console.log('🧹 Force removed object:', obj.userData.modelType || 'unknown');
-      });
-      
-      currentModelsRef.current = [];
-
-      // Model configurations - SAME MODEL ON BOTH SIDES
-      const configs = {
-        skills: [
-          { model: 'react', position: [-12, 1, -8], scale: 1.5, side: 'left' },
-          { model: 'react', position: [12, 1, -8], scale: 1.5, side: 'right' }
-        ],
-        education: [
-          { model: 'character', position: [-12, -1, -8], scale: 1.5, side: 'left' },
-          { model: 'character', position: [12, -1, -8], scale: 1.5, side: 'right' }
-        ],
-        projects: [
-          { model: 'computer', position: [-12, 0, -8], scale: 1.5, side: 'left' },
-          { model: 'computer', position: [12, 0, -8], scale: 1.5, side: 'right' }
-        ],
-        about: [
-          { model: 'tree', position: [-12, -1, -8], scale: 0.7, side: 'left' },
-          { model: 'tree', position: [12, -1, -8], scale: 0.7, side: 'right' }
-        ],
-        contact: [
-          { model: 'tree', position: [-12, -1, -8], scale: 0.7, side: 'left' },
-          { model: 'tree', position: [12, -1, -8], scale: 0.7, side: 'right' }
-        ]
-      };
-
-      const sectionConfigs = configs[section];
-      if (!sectionConfigs) {
-        console.log(`📭 No models for section: ${section}`);
-        return;
-      }
-
-      // Add all models for this section
-      sectionConfigs.forEach((config, index) => {
-        if (!modelsRef.current[config.model]) {
-          console.log(`❌ Model ${config.model} not loaded`);
-          return;
-        }
-
-        // Clone and add model
-        const model = modelsRef.current[config.model].clone();
-        model.position.set(...config.position);
-        model.scale.setScalar(config.scale);
-        
-        // Store metadata for animations and identification
-        model.userData.modelType = config.model;
-        model.userData.baseY = config.position[1];
-        model.userData.baseX = config.position[0];
-        model.userData.baseZ = config.position[2];
-        model.userData.baseScale = config.scale;
-        model.userData.side = config.side;
-        model.userData.isModel = true;
-        model.userData.animationOffset = index * Math.PI;
-        
-        // Lock position to prevent any movement
-        model.userData.lockedPosition = {
-          x: config.position[0],
-          y: config.position[1], 
-          z: config.position[2]
-        };
-        
-        scene.add(model);
-        currentModelsRef.current.push(model);
-        console.log(`✅ Added ${config.model} on ${config.side} side for ${section}`);
-      });
-
-      console.log(`🎭 Section ${section} now has ${currentModelsRef.current.length} models`);
-    };
-
-    // Simple scroll detection with throttling
-    let currentSection = 'home';
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      
-      let newSection = 'home';
-      
-      // Simple section detection based on scroll position
-      if (scrollY < windowHeight * 0.5) {
-        newSection = 'home';
-      } else if (scrollY < windowHeight * 1.5) {
-        newSection = 'about';
-      } else if (scrollY < windowHeight * 2.5) {
-        newSection = 'skills';
-      } else if (scrollY < windowHeight * 3.5) {
-        newSection = 'education';
-      } else if (scrollY < windowHeight * 4.5) {
-        newSection = 'projects';
-      } else {
-        newSection = 'contact';
       }
       
-      // Only update if section actually changed
-      if (newSection !== currentSection) {
-        console.log(`🔄 Section changed: ${currentSection} → ${newSection}`);
-        currentSection = newSection;
-        showModel(newSection);
+      // Add stationary trees on sides
+      if (modelsRef.current.tree) {
+        const leftTree = modelsRef.current.tree.clone();
+        leftTree.position.set(-18, -2, -12);
+        leftTree.scale.setScalar(0.8);
+        leftTree.userData = { modelType: 'tree', isStationary: true };
+        scene.add(leftTree);
+        
+        const rightTree = modelsRef.current.tree.clone();
+        rightTree.position.set(18, -2, -12);
+        rightTree.scale.setScalar(0.8);
+        rightTree.userData = { modelType: 'tree', isStationary: true };
+        scene.add(rightTree);
+        
+        console.log('🌳 Added stationary trees on both sides');
       }
     };
 
-    // Animation loop - ONLY rotation, NO position changes
+    // Enhanced animation loop
     const animate = () => {
       requestAnimationFrame(animate);
+      const time = Date.now() * 0.001;
       
-      // Animate all current models
-      currentModelsRef.current.forEach((model) => {
-        if (model) {
-          const modelType = model.userData.modelType;
-          const side = model.userData.side;
+      // Animate floating 3D models
+      floatingModelsRef.current.forEach((model) => {
+        if (model.userData.isFloating) {
+          const basePos = model.userData.basePosition;
+          const floatSpeed = model.userData.floatSpeed;
+          const offset = model.userData.floatOffset;
           
-          // FORCE LOCK POSITION - prevent any movement
-          if (model.userData.lockedPosition) {
-            model.position.set(
-              model.userData.lockedPosition.x,
-              model.userData.lockedPosition.y,
-              model.userData.lockedPosition.z
-            );
-          }
+          // Gentle floating motion
+          model.position.y = basePos.y + Math.sin(time * floatSpeed + offset) * 2;
+          model.position.x = basePos.x + Math.sin(time * floatSpeed * 0.7 + offset) * 1;
           
-          // ONLY Y-axis rotation - NO position changes whatsoever
-          const rotationSpeed = 0.005;
-          if (side === 'left') {
-            model.rotation.y += rotationSpeed;
-          } else {
-            model.rotation.y -= rotationSpeed; // Opposite direction for right side
-          }
-          
-          // Model-specific rotation adjustments ONLY
-          switch (modelType) {
-            case 'react':
-              // React: Slightly faster rotation
-              if (side === 'left') {
-                model.rotation.y += 0.003;
-              } else {
-                model.rotation.y -= 0.003;
-              }
-              break;
-              
-            case 'character':
-            case 'computer':
-            case 'tree':
-              // All others: Just the base rotation, no additional changes
-              break;
-          }
+          // Gentle rotation
+          model.rotation.y += model.userData.rotationSpeed;
+          model.rotation.x = Math.sin(time * 0.5 + offset) * 0.1;
         }
       });
       
@@ -249,8 +179,6 @@ const ThreeScene = () => {
 
     const startAnimation = () => {
       animate();
-      handleScroll();
-      window.addEventListener('scroll', handleScroll);
     };
 
     // Resize handler
@@ -264,11 +192,10 @@ const ThreeScene = () => {
 
     // Cleanup
     return () => {
-      window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
       
-      if (mountRef.current && renderer.domElement) {
-        mountRef.current.removeChild(renderer.domElement);
+      if (mount && renderer.domElement) {
+        mount.removeChild(renderer.domElement);
       }
       
       renderer.dispose();

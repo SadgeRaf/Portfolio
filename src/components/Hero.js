@@ -85,10 +85,11 @@ const Hero = () => {
   }, []);
 
   const handleResumeDownload = () => {
-    // Create a link element and trigger download
+    // Encode the filename properly to handle spaces and special characters
     const link = document.createElement('a');
-    link.href = '/MD_Khalilur_Rahman_Internship_Resume.pdf';
+    link.href = encodeURI('/MD_Khalilur_Rahman_Internship_Resume.docx (1).pdf');
     link.download = 'MD_Khalilur_Rahman_Internship_Resume.pdf';
+    link.target = '_blank'; // Open in new tab as fallback
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -167,12 +168,13 @@ const Hero = () => {
           <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-4 mb-8">
             <button
               onClick={handleResumeDownload}
-              className="group bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-glow hover:shadow-glow-lg transform hover:scale-105"
+              className="group relative bg-gradient-to-r from-primary to-secondary text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-500 flex items-center justify-center gap-2 shadow-glow hover:shadow-glow-lg transform hover:scale-105 overflow-hidden"
             >
-              <svg className="w-5 h-5 group-hover:animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="absolute inset-0 bg-gradient-to-r from-secondary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
+              <svg className="w-5 h-5 group-hover:animate-bounce relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              Download Resume
+              <span className="relative z-10">Download Resume</span>
             </button>
             <button
               onClick={() => {

@@ -119,24 +119,24 @@ const Projects = () => {
     },
     {
       id: 3,
-      name: 'WarmPAWS',
-      image: '/warmPAWS.png',
-      shortDescription: 'Pet adoption platform connecting loving families with pets in need',
-      technologies: ['React', 'Firebase', 'Tailwind CSS', 'JavaScript'],
-      fullDescription: 'A heartwarming pet adoption platform that helps connect pets in shelters with loving families. Features include pet profiles with detailed information, adoption application system, shelter management tools, and follow-up tracking for successful adoptions.',
-      liveLink: 'https://warmpaws-55717.web.app',
-      githubLink: 'https://github.com/SadgeRaf/WarmPAWS.git',
+      name: 'Artwork',
+      image: '/640017652_934470199083045_4571631342154685098_n.png',
+      shortDescription: 'A platform showcasing art and working on commissions',
+      technologies: ['NextJS', 'OAuth', 'Tailwind CSS', 'JavaScript', 'Botpress'],
+      fullDescription: 'A modern full-stack web application built with Next.js to showcase digital artwork and manage commission requests. Features a role-based access system, interactive UI animations, and integrated chatbot for seamless client communication',
+      liveLink: 'https://artwork-two-virid.vercel.app',
+      githubLink: 'https://github.com/SadgeRaf/Artwork.git',
       challenges: [
-        'Creating intuitive pet search and filtering system',
-        'Building comprehensive adoption application workflow',
-        'Implementing secure communication between adopters and shelters',
-        'Managing pet profile data with multiple photos and details'
+        'Working with a new Framework',
+        'Building comprehensive role-based system and UI',
+        'Implementing ai botpress',
+        'Managing user profile data with photos, details and roles'
       ],
       improvements: [
-        'Add virtual pet meet-and-greet video calls',
-        'Implement AI-powered pet-family matching',
-        'Add pet care tips and resources section',
-        'Include post-adoption support community'
+        'Add payment system',
+        'Verify real users with email verification',
+        'Add more comprehensive commission system and workflow',
+        'Include post-submission support community'
       ]
     },
     {
